@@ -78,10 +78,12 @@ class ProtectionService(Service):
 
     @override
     def do_run(self):
+
         time_func = time.perf_counter
         start_time = time_func()
 
         current_infrastructure = self.infrastructure_manager.all_nodes_with_gpu_processes()
+        # log.info(str(current_infrastructure))
         for hostname in current_infrastructure:
             violations = {}  # type: Dict[str, Dict]
             for gpu_id in current_infrastructure[hostname]:
@@ -103,6 +105,7 @@ class ProtectionService(Service):
 
             for intruder in violations:
                 violation_data = violations[intruder]
+                # log.info(str(violation_data))
                 reservations = violation_data['RESERVATIONS']
                 hostnames = set([reservation_data['HOSTNAME'] for reservation_data in reservations])
                 violation_data['SSH_CONNECTIONS'] = {hostname: self.connection_manager.single_connection(hostname)

@@ -49,14 +49,17 @@ class InfrastructureManager():
 
         # Loop through each GPU on node
         node_processes = {}
+        log.debug('ignored {}'.format(self.ignored_processes))
         for uuid, gpu_data in self.infrastructure[hostname]['GPU'].items():
             if 'processes' in self.infrastructure[hostname]['GPU'][uuid]:
                 single_gpu_processes = self.infrastructure[hostname]['GPU'][uuid]['processes']
+                log.debug('host {}, {}'.format(hostname, single_gpu_processes))
                 if single_gpu_processes is not None:
                     node_processes[uuid] = [process for process in single_gpu_processes if process['command']
                                             not in self.ignored_processes]
                 else:
                     node_processes[uuid] = []
+        log.debug('{}'.format(node_processes))
         return node_processes
 
     def all_nodes_with_gpu_processes(self) -> Dict[str, Dict]:
@@ -73,5 +76,8 @@ class InfrastructureManager():
             '/usr/lib/xorg/Xorg',
             '/usr/bin/X',
             'X',
-            '-'  # nvidia-smi on TITAN X shows this for whatever reason...
+            '-',  # nvidia-smi on TITAN X shows this for whatever reason...
+            # Modified by gdumont
+            '/usr/bin/gnome-shell',
+            'gnome-shell',
         ]
