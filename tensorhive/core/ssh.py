@@ -4,6 +4,7 @@ from pssh.clients.native import ParallelSSHClient
 from pssh.exceptions import AuthenticationException
 from typing import Optional, Dict, Tuple, Generator, List
 from paramiko.rsakey import RSAKey
+from paramiko.ed25519key import Ed25519Key
 from pathlib import PosixPath
 import pssh
 import logging
@@ -27,6 +28,11 @@ ProxyConfig = Dict[str, str]
 Hostname = str
 Username = str
 CommandResult = Dict[Hostname, pssh.output.HostOutput]
+
+KEYS = {
+    "rsa": RSAKey,
+    "ed25519key": Ed25519Key,
+}
 
 
 def build_dedicated_config_for(host: Hostname, user: Username) -> Tuple[HostsConfig, Optional[ProxyConfig]]:
@@ -128,19 +134,19 @@ def succeeded(host: Hostname, output: pssh.output.HostOutput) -> bool:
     return (output.exception is None) and (output.exit_code == 0)
 
 
-def generate_cert(path, replace=False):
+def generate_cert(path, replace=False, key_cls="rsa"):
     path.touch(mode=0o600, exist_ok=replace)
-    key = RSAKey.generate(2048)
+    key = KEYS[key_cls].generate(2048)
     key.write_private_key_file(str(path))
     return key
 
 
-def init_ssh_key(path: PosixPath):
+def init_ssh_key(path: PosixPath, key_cls="rsa"):
     if path.exists():
-        key = RSAKey.from_private_key_file(str(path))
+        key = KEYS[key_cls].from_private_key_file(str(path))
         log.info('[⚙] Using existing SSH key in {}'.format(path))
     else:
-        key = generate_cert(path)
+        key = generate_cert(path, key_cls)
         log.info('[⚙] Generated SSH key in {}'.format(path))
     return key
 

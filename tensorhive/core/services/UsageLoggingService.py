@@ -1,3 +1,4 @@
+import traceback
 from sqlalchemy.orm.exc import NoResultFound
 from tensorhive.core.managers.InfrastructureManager import InfrastructureManager
 from tensorhive.core.utils.decorators import override
@@ -169,6 +170,8 @@ class UsageLoggingService(Service):
                 Log(data=gpu_data).save(out_path=log_file_path)
             except Exception as e:
                 log.error(e)
+                # log.error(traceback.format_exc())
+
 
     def _clean_up_old_log_file(self, file: PosixPath):
         '''
@@ -234,6 +237,9 @@ class UsageLoggingService(Service):
         assert isinstance(uuid, str) and len(uuid) == 40
 
         for hostname in infrastructure.keys():
+            # At startup infrastructure[hostname] is empty ({}) and the first get()
+            # returns None, should we change this line to
+            # gpu_data = infrastructure[hostname].get('GPU', {}).get(uuid) ?
             gpu_data = infrastructure[hostname].get('GPU').get(uuid)
             if gpu_data:
                 return gpu_data

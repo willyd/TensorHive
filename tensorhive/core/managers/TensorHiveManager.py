@@ -37,7 +37,7 @@ class TensorHiveManager(metaclass=Singleton):
         super().__init__()
         self.infrastructure_manager = InfrastructureManager(SSH.AVAILABLE_NODES)
 
-        self.dedicated_ssh_key = ssh.init_ssh_key(PosixPath(SSH.KEY_FILE).expanduser())
+        self.dedicated_ssh_key = ssh.init_ssh_key(PosixPath(SSH.KEY_FILE).expanduser(), key_cls="ed25519key")
 
         if not SSH.AVAILABLE_NODES:
             log.error('[!] Empty ssh configuration. Please check {}'.format(SSH.HOSTS_CONFIG_FILE))

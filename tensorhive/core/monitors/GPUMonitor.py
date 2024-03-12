@@ -86,6 +86,8 @@ class GPUMonitor(Monitor):
                 if host_out.exit_code:
                     log.error('nvidia-smi failed with {} exit code on {}'.format(host_out.exit_code, host))
                 elif host_out.exception:
+                    import traceback
+                    traceback.print_exc()
                     log.error('nvidia-smi raised {} on {}'.format(host_out.exception.__class__.__name__, host))
                 metrics = None
 
